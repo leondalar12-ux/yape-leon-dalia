@@ -51,7 +51,12 @@
 | **DOCENTE:** | **Mg. Rubén Quispe Llacctarimay** | **Modalidad:** | **Implementación + Video** |
 
 ---
+---
+Link videos: https://drive.google.com/drive/folders/1u9h9lw0M3LSVGHb3U0OOIZdjrQ1CzRJr
 
+Link repositorio: https://github.com/leondalar12-ux/yape-leon-dalia.git
+---
+---
 ## INSTRUCCIONES GENERALES
 
 | Ítem | Detalle |
@@ -90,6 +95,89 @@
 
 ## PARTE A — DISEÑO Y ARQUITECTURA (4 puntos)
 ### *Puedes usar IA generativa en esta sección — cita qué herramienta usaste*
+
+### Diagrama 1 — Flujo de datos (arquitectura completa)
+
+```mermaid
+flowchart TD
+    A1[Pagos Yape\n450 TPS pico] --> B1
+    A2[Comerciantes\n1.3M afiliados] --> B2
+    A3[Sesiones\n15M usuarios] --> B3
+    A4[Eventos fraude\nReal-time] --> B4
+
+    B1[Delta Lake + Databricks\nPipeline Medallion] --> C1
+    B2[MongoDB\nPerfiles flexibles] --> C2
+    B3[Redis\nSesiones TTL 30min] --> C3
+    B4[Apache Flink\nStreaming fraude] --> C4
+
+    C1 --> D1[Bronze\nDatos crudos]
+    D1 --> D2[Silver\nDatos limpios]
+    D2 --> D3[Gold\nMétricas negocio]
+
+    C2 --> E1[Equipo comercial\nReporte comerciantes]
+    C3 --> E2[App Yape\nLogin rápido]
+    C4 --> E3[Seguridad\nAlertas fraude]
+    D3 --> E4[Power BI\nDashboard ejecutivo]
+
+    style A1 fill:#F0997B,color:#712B13
+    style A2 fill:#F0997B,color:#712B13
+    style A3 fill:#F0997B,color:#712B13
+    style A4 fill:#F0997B,color:#712B13
+    style B1 fill:#85B7EB,color:#042C53
+    style B2 fill:#5DCAA5,color:#04342C
+    style B3 fill:#5DCAA5,color:#04342C
+    style B4 fill:#ED93B1,color:#4B1528
+    style D1 fill:#FAC775,color:#412402
+    style D2 fill:#EF9F27,color:#412402
+    style D3 fill:#BA7517,color:#FAEEDA
+    style E4 fill:#97C459,color:#173404
+```
+
+---
+
+### Diagrama 2 — Arquitectura por capas (Medallion)
+
+```mermaid
+flowchart LR
+    subgraph FUENTES["Fuentes de datos"]
+        F1[Transacciones\nYape]
+        F2[Usuarios\n15M]
+        F3[Comerciantes\n1.3M]
+    end
+
+    subgraph BRONZE["Bronze Layer — Datos crudos"]
+        B[Parquet raw\n2000+ registros/hora]
+    end
+
+    subgraph SILVER["Silver Layer — Datos limpios"]
+        S1[Filtro: solo completadas]
+        S2[Categoría monto]
+        S3[Hora pico]
+        S4[Comisión Yape 1.5%]
+    end
+
+    subgraph GOLD["Gold Layer — Métricas negocio"]
+        G1[Top 5 distritos\nvolumen]
+        G2[Ingresos por hora\ncomisiones]
+    end
+
+    subgraph CONSUMO["Consumidores"]
+        C1[Power BI\nDashboard]
+        C2[App Yape\nHistorial]
+    end
+
+    FUENTES --> BRONZE
+    BRONZE --> SILVER
+    SILVER --> GOLD
+    GOLD --> CONSUMO
+
+    style BRONZE fill:#FAC775,color:#412402
+    style SILVER fill:#85B7EB,color:#042C53
+    style GOLD fill:#97C459,color:#173404
+```
+
+---
+
 
 ---
 
